@@ -64,7 +64,6 @@ void Renderer::imageCallback(const sensor_msgs::Image::ConstPtr& msg)
   image_tracking_.imageCallback(msg);
 
   cv_bridge::CvImagePtr cv_ptr;
-
   try
   {
     cv_ptr = cv_bridge::toCvCopy(msg);
@@ -91,11 +90,44 @@ void Renderer::imageCallback(const sensor_msgs::Image::ConstPtr& msg)
 
   if (!used_last_image_)
   {
-    cv_bridge::CvImage cv_image;
+    cv_bridge::CvImage cv_image, cv_image2;
     last_image_.copyTo(cv_image.image);
     cv_image.encoding = "bgr8";
+    cv_image2.encoding = "bgr8";
+    
     std::cout << "publish image from callback" << std::endl;
     image_pub_.publish(cv_image.toImageMsg());
+    cv::Mat intrinsic_matrix_ = cv::Mat(3, 3, CV_64F);
+
+    // Parameters from camera calibration
+    double	fu = 159.595058936308,
+		fv = 159.71944274302876,
+		pu = 180.47152617018745,
+		pv = 125.42606019220874,
+    k1 = 0.017009773343799193,
+    k2 = -0.005574094292689517,
+    k3 = -0.000372373712595925,
+    k4 = -0.0023429650275834987;
+
+    intrinsic_matrix_.at<double>(0, 0) = fu;
+    intrinsic_matrix_.at<double>(0, 1) = 0.0;
+    intrinsic_matrix_.at<double>(0, 2) = pu;
+    intrinsic_matrix_.at<double>(1, 0) = 0.0;
+    intrinsic_matrix_.at<double>(1, 1) = fv;
+    intrinsic_matrix_.at<double>(1, 2) = pv;
+	  intrinsic_matrix_.at<double>(2, 0) = 0.0;
+	  intrinsic_matrix_.at<double>(2, 1) = 0.0;
+    intrinsic_matrix_.at<double>(2, 2) = 1.0;
+
+    cv::Mat dist_coeffs = cv::Mat(4, 1, CV_64F);
+    dist_coeffs.at<double>(0) = k1;
+    dist_coeffs.at<double>(1) = k2;
+    dist_coeffs.at<double>(2) = k3;
+    dist_coeffs.at<double>(3) = k4;
+
+
+    cv::undistort(cv_image.image, cv_image2.image, intrinsic_matrix_, dist_coeffs);
+    undistorted_image_pub_.publish(cv_image2.toImageMsg());
   }
   used_last_image_ = false;
 }
