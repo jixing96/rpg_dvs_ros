@@ -100,14 +100,14 @@ void Renderer::imageCallback(const sensor_msgs::Image::ConstPtr& msg)
     cv::Mat intrinsic_matrix_ = cv::Mat(3, 3, CV_64F);
 
     // Parameters from camera calibration
-    double	fu = 159.595058936308,
-		fv = 159.71944274302876,
-		pu = 180.47152617018745,
-		pv = 125.42606019220874,
-    k1 = 0.017009773343799193,
-    k2 = -0.005574094292689517,
-    k3 = -0.000372373712595925,
-    k4 = -0.0023429650275834987;
+    double	fu = 154.90499390532042,
+		fv = 154.86679846964188,
+		pu = 179.05197496325223,
+		pv = 125.44241715191616,
+    k1 = 0.013295425507661506,
+    k2 = -0.005454612658198516,
+    k3 = 0.0021425455429139786,
+    k4 = -0.0011915020580492352;
 
     intrinsic_matrix_.at<double>(0, 0) = fu;
     intrinsic_matrix_.at<double>(0, 1) = 0.0;
